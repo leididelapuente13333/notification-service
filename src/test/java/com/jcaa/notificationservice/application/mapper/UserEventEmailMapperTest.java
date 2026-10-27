@@ -50,6 +50,33 @@ class UserEventEmailMapperTest {
   }
 
   @Test
+  void shouldMapTransferCompletedEvent() {
+    // Arrange
+    final ProcessDomainEventCommand command =
+        new ProcessDomainEventCommand(
+            "transfer.completed",
+            OCCURRED_ON,
+            Map.of(
+                "name", "Carlos Perez",
+                "email", "carlos.perez@example.com",
+                "amount", "150000.00",
+                "currency", "COP",
+                "transactionId", "tx_987654321"));
+
+    // Act
+    final EmailDestination destination =
+        mapper.toEmailDestination(command, UserEventType.TRANSFER_COMPLETED);
+
+    // Assert
+    assertAll(
+        () -> assertThat(destination.destinationEmail().value()).isEqualTo("carlos.perez@example.com"),
+        () -> assertThat(destination.destinationName()).isEqualTo("Carlos Perez"),
+        () -> assertThat(destination.subject()).isEqualTo("Transfer Confirmation - Successful Transaction"),
+        () -> assertThat(destination.body()).contains("$150000.00 COP"),
+        () -> assertThat(destination.body()).contains("tx_987654321"));
+  }
+
+  @Test
   void shouldRejectNullPayload() {
     // Arrange
     final ProcessDomainEventCommand command =

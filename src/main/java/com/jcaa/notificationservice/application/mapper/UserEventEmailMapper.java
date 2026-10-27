@@ -14,24 +14,33 @@ public final class UserEventEmailMapper {
 
   private static final String EMAIL_FIELD = "email";
   private static final String NAME_FIELD = "name";
+  private static final String AMOUNT_FIELD = "amount";
+  private static final String CURRENCY_FIELD = "currency";
+  private static final String TRANSACTION_ID_FIELD = "transactionId";
+
   private static final String MISSING_PAYLOAD_MESSAGE = "The notification payload is required.";
   private static final String MISSING_FIELD_MESSAGE =
       "The notification payload is missing a required field.";
+
   private static final String CREATED_SUBJECT = "Welcome to our platform";
   private static final String UPDATED_SUBJECT = "Your account was updated";
+  private static final String TRANSFER_SUBJECT = "Transfer Confirmation - Successful Transaction";
+
   private static final String CREATED_BODY_TEMPLATE =
       "<p>Hello %s, your account was created successfully.</p>";
   private static final String UPDATED_BODY_TEMPLATE =
       "<p>Hello %s, your account information was updated successfully.</p>";
+  private static final String TRANSFER_BODY_TEMPLATE =
+      "<p>Hello %s, your transfer of <strong>$%s %s</strong> has been completed successfully.</p><p>Transaction ID: <code>%s</code></p>";
 
   public EmailDestination toEmailDestination(
       final ProcessDomainEventCommand command, final UserEventType eventType) {
     final Map<String, String> payload = requiredPayload(command.payload());
     final String name = requiredField(payload, NAME_FIELD);
     final UserEmail email = new UserEmail(requiredField(payload, EMAIL_FIELD));
-    final EmailContent content = contentFor(eventType);
+    final EmailContent content = contentFor(eventType, payload, name);
     return new EmailDestination(
-        email, name, content.subject(), content.bodyTemplate().formatted(name));
+        email, name, content.subject(), content.bodyTemplate());
   }
 
   private static Map<String, String> requiredPayload(final Map<String, String> payload) {
@@ -49,10 +58,19 @@ public final class UserEventEmailMapper {
     return value.strip();
   }
 
-  private static EmailContent contentFor(final UserEventType eventType) {
+  private static EmailContent contentFor(
+      final UserEventType eventType, final Map<String, String> payload, final String name) {
     return switch (eventType) {
-      case CREATED -> new EmailContent(CREATED_SUBJECT, CREATED_BODY_TEMPLATE);
-      case UPDATED -> new EmailContent(UPDATED_SUBJECT, UPDATED_BODY_TEMPLATE);
+      case CREATED -> new EmailContent(CREATED_SUBJECT, CREATED_BODY_TEMPLATE.formatted(name));
+      case UPDATED -> new EmailContent(UPDATED_SUBJECT, UPDATED_BODY_TEMPLATE.formatted(name));
+      case TRANSFER_COMPLETED -> {
+        final String amount = payload.getOrDefault(AMOUNT_FIELD, "0.00");
+        final String currency = payload.getOrDefault(CURRENCY_FIELD, "COP");
+        final String txId = payload.getOrDefault(TRANSACTION_ID_FIELD, "N/A");
+        yield new EmailContent(
+            TRANSFER_SUBJECT,
+            TRANSFER_BODY_TEMPLATE.formatted(name, amount, currency, txId));
+      }
       case DELETED -> throw new InvalidNotificationEventException(MISSING_FIELD_MESSAGE);
     };
   }

@@ -78,7 +78,7 @@ class BrevoEmailSenderAdapterTest {
       HttpStatus.ACCEPTED
     };
     exchangeFunction =
-        _ -> Mono.just(response(responses[calls.getAndIncrement()]));
+        ignored -> Mono.just(response(responses[calls.getAndIncrement()]));
     final BrevoProperties properties = properties(4, 10);
 
     // Act
@@ -93,7 +93,7 @@ class BrevoEmailSenderAdapterTest {
     // Arrange
     final AtomicInteger calls = new AtomicInteger();
     exchangeFunction =
-        _ -> {
+        ignored -> {
           calls.incrementAndGet();
           return Mono.just(response(HttpStatus.BAD_REQUEST));
         };
@@ -121,7 +121,7 @@ class BrevoEmailSenderAdapterTest {
             HttpHeaders.EMPTY);
     final AtomicInteger calls = new AtomicInteger();
     exchangeFunction =
-        _ ->
+        ignored ->
             calls.getAndIncrement() == 0
                 ? Mono.error(connectionFailure)
                 : Mono.just(response(HttpStatus.ACCEPTED));
@@ -138,7 +138,7 @@ class BrevoEmailSenderAdapterTest {
     // Arrange
     final AtomicInteger calls = new AtomicInteger();
     exchangeFunction =
-        _ -> {
+        ignored -> {
           calls.incrementAndGet();
           return Mono.just(response(HttpStatus.SERVICE_UNAVAILABLE));
         };
@@ -160,7 +160,7 @@ class BrevoEmailSenderAdapterTest {
   void shouldPropagateUnexpectedProgrammingFailure() {
     // Arrange
     final IllegalStateException programmingFailure = new IllegalStateException("unexpected");
-    exchangeFunction = _ -> Mono.error(programmingFailure);
+    exchangeFunction = ignored -> Mono.error(programmingFailure);
 
     // Act
     final IllegalStateException exception =

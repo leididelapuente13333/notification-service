@@ -5,12 +5,16 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableRabbit
 public class RabbitNotificationConfiguration {
 
   @Bean
@@ -38,4 +42,13 @@ public class RabbitNotificationConfiguration {
     return new JacksonJsonMessageConverter();
   }
 
+  @Bean
+  SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+      final ConnectionFactory connectionFactory, final MessageConverter rabbitMessageConverter) {
+    final SimpleRabbitListenerContainerFactory factory =
+        new SimpleRabbitListenerContainerFactory();
+    factory.setConnectionFactory(connectionFactory);
+    factory.setMessageConverter(rabbitMessageConverter);
+    return factory;
+  }
 }

@@ -14,7 +14,7 @@
     <name>notification-service</name>
     <description>notification-service</description>
     <properties>
-        <java.version>25</java.version>
+        <java.version>17</java.version>
         <jacoco.version>0.8.14</jacoco.version>
         <resilience4j.version>2.3.0</resilience4j.version>
     </properties>

@@ -27,9 +27,37 @@ class NotificationEventApplicationServiceTest {
     service.process(command);
 
     // Assert
-    final EmailDestination destination = emailSenderPort.sentEmails().getFirst();
+    final EmailDestination destination = emailSenderPort.sentEmails().get(0);
     assertThat(destination.destinationEmail().value()).isEqualTo("ana.perez@example.com");
     assertThat(destination.subject()).isEqualTo("Welcome to our platform");
+  }
+
+  @Test
+  void shouldSendEmailForTransferCompletedEvent() {
+    // Arrange
+    final RecordingEmailSender emailSenderPort = new RecordingEmailSender();
+    final NotificationEventApplicationService service =
+        new NotificationEventApplicationService(emailSenderPort, new UserEventEmailMapper());
+    final ProcessDomainEventCommand command =
+        new ProcessDomainEventCommand(
+            "transfer.completed",
+            LocalDateTime.of(2026, 10, 12, 14, 30),
+            Map.of(
+                "name", "Carlos Perez",
+                "email", "carlos.perez@example.com",
+                "amount", "150000.00",
+                "currency", "COP",
+                "transactionId", "tx_987654321"));
+
+    // Act
+    service.process(command);
+
+    // Assert
+    assertThat(emailSenderPort.sentEmails()).hasSize(1);
+    final EmailDestination destination = emailSenderPort.sentEmails().get(0);
+    assertThat(destination.destinationEmail().value()).isEqualTo("carlos.perez@example.com");
+    assertThat(destination.subject()).isEqualTo("Transfer Confirmation - Successful Transaction");
+    assertThat(destination.body()).contains("$150000.00 COP");
   }
 
   @Test

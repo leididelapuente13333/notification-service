@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public class NotificationServiceApplication {
 
-  static void main(final String[] args) {
+  public static void main(final String[] args) {
     SpringApplication.run(NotificationServiceApplication.class, args);
   }
 

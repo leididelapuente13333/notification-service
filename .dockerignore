@@ -4,3 +4,22 @@ target
 *.iml
 *.log
 HELP.md
+
+# Application Port (Render automatically sets PORT)
+PORT=8081
+
+# Peer Services
+USERS_SERVICE_URL=https://users-management-eebg.onrender.com
+NOTIFICATION_SERVICE_URL=https://notification-microservice-j779.onrender.com
+
+# Shared RabbitMQ (CloudAMQP)
+RABBITMQ_URL=amqps://bkrxoiuo:2fB0lVyaM_ftIMUWHUd_PTzhm2GRg-Xq@fuji.lmq.cloudamqp.com/bkrxoiuo
+RABBITMQ_EXCHANGE=domain.events
+
+# Database Connection (PostgreSQL on Render)
+DB_TYPE=postgres
+DB_HOST=dpg-db0sajdg1s2s73ff1u40-a.virginia-postgres.render.com
+DB_PORT=5432
+DB_NAME=users_5tfw
+DB_USERNAME=users_5tfw_user
+DB_PASSWORD=jydV6A1p6Fp3x4npyzckzowkaxQOhBJj
